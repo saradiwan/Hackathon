@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Renewable Energy Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width:100%; min-height:100vh;
+      background:radial-gradient(circle at bottom,#0b1a2a 0%,#000 100%);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:flex-start;
+      color:white; font-family:'Poppins',sans-serif;
+      overflow-x:hidden;
+    }
+    #title {
+      margin-top:4rem; font-weight:700; text-align:center;
+      background:linear-gradient(to right,#facc15,#64BEC8);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      font-size:2.5rem;
+    }
+    #subtitle {
+      margin-top:1rem; font-size:20px; text-align:center;
+      max-width:600px; line-height:1.6; color:#ffffffcc;
+    }
+    .earth {
+      position:relative;
+      width:550px; aspect-ratio:1;
+      border-radius:50%;
+      background-image:url('https://i.postimg.cc/9QCCCVsQ/earth.png');
+      background-repeat:repeat-x; background-size:cover;
+      animation:earth 40s linear infinite,pulse 2s linear infinite alternate-reverse;
+      box-shadow:0 0 20px rgba(255,255,255,0.2),
+                 0 0 8rem -20px #64BEC8,
+                 inset 0 0 76px -10px #64BEC8,
+                 inset 0 0 5.6rem -10px #64BEC8;
+    }
+    @keyframes earth {  
+      0% { background-position:0 0; }  
+      100% { background-position:-199% 0; }
+    }
+    @keyframes pulse {
+      0% { --p1:8rem; --p2:5.6rem; }
+      100% { --p1:10rem; --p2:3.6rem; }
+    }
+    .main {
+      display:flex; justify-content:space-between; align-items:center;
+      width:90%; max-width:1300px; margin-top:3rem; gap:3rem;
+      flex-wrap:wrap;
+    }
+    .login-box {
+      background: rgba(27,38,59,0.85);
+      border:1px solid rgba(100,190,200,0.4);
+      padding:3rem 2rem;
+      border-radius:1.5rem;
+      width:100%; max-width:400px;
+      box-shadow:0 0 40px rgba(100,190,200,0.3);
+      backdrop-filter:blur(10px);
+    }
+    .toggle {
+      display:flex; justify-content:space-around;
+      background:rgba(0,0,0,0.3);
+      border-radius:1rem; padding:0.3rem; gap:0.5rem;
+      margin-bottom:1.5rem;
+    }
+    .toggle button {
+      flex:1; padding:0.7rem; border:none;
+      background:transparent; color:white; font-weight:600;
+      border-radius:1rem; transition:0.3s; cursor:pointer;
+    }
+    .toggle button.active {
+      background:linear-gradient(90deg,#facc15,#64BEC8);
+      color:black;
+    }
+    form { display:none; flex-direction:column; }
+    form.active { display:flex; }
+    form input {
+      width:100%; padding:0.9rem;
+      border-radius:0.75rem; border:1px solid #475569;
+      background-color:#0d1b2a; color:white;
+      outline:none; font-size:1rem; margin-bottom:1.5rem;
+    }
+    button.submit {
+      background:linear-gradient(90deg,#facc15,#64BEC8);
+      color:black; font-weight:700;
+      padding:0.9rem; border-radius:0.75rem;
+      cursor:pointer; border:none;
+      transition:0.2s;
+    }
+    button.submit:hover { transform:scale(1.03); }
+    @media(max-width:900px){
+      .main{ flex-direction:column; text-align:center; }
+      .earth{ width:400px; }
+    }
+    @media(max-width:600px){
+      .earth{ width:300px; }
+      #title{ font-size:1.8rem; }
+      #subtitle{ font-size:0.95rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1 id="title"></h1>
+  <p id="subtitle"></p>
+
+  <div class="main">
+
+    <div class="login-box">
+
+      <div class="toggle">
+        <button id="loginBtn" class="active">Login</button>
+        <button id="signupBtn">Sign Up</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" class="active">
+        <input type="email" id="loginEmail" placeholder="Email address" required />
+        <input type="password" id="loginPass" placeholder="Password" required />
+        <button type="submit" class="submit">Login</button>
+      </form>
+
+      <!-- SIGNUP FORM -->
+      <form id="signupForm">
+        <input type="text" id="signupName" placeholder="Full Name" required />
+        <input type="email" id="signupEmail" placeholder="Email address" required />
+        <input type="password" id="signupPass" placeholder="Password" required />
+        <input type="password" id="signupConfirm" placeholder="Confirm Password" required />
+        <button type="submit" class="submit">Sign Up</button>
+      </form>
+
+    </div>
+
+    <div class="earth"></div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+      // Typing animation
+      const titleText = "Renewable Energy Portal";
+      const subtitleText = "Empowering a sustainable future...";
+      let i = 0, j = 0;
+      const titleEl = document.getElementById("title");
+      const subtitleEl = document.getElementById("subtitle");
+
+      function typeTitle(){
+        if(i < titleText.length){
+          titleEl.textContent += titleText[i++];
+          setTimeout(typeTitle, 100);
+        }
+      }
+      typeTitle();
+
+      const words = subtitleText.split(" ");
+      function typeSubtitle(){
+        if(j < words.length){
+          subtitleEl.textContent += words[j++] + " ";
+          setTimeout(typeSubtitle, 200);
+        }
+      }
+      setTimeout(typeSubtitle, 1200);
+
+      // Toggle login/signup
+      const loginBtn = document.getElementById("loginBtn");
+      const signupBtn = document.getElementById("signupBtn");
+      const loginForm = document.getElementById("loginForm");
+      const signupForm = document.getElementById("signupForm");
+
+      loginBtn.onclick = () => {
+        loginBtn.classList.add("active");
+        signupBtn.classList.remove("active");
+        loginForm.classList.add("active");
+        signupForm.classList.remove("active");
+      };
+
+      signupBtn.onclick = () => {
+        signupBtn.classList.add("active");
+        loginBtn.classList.remove("active");
+        signupForm.classList.add("active");
+        loginForm.classList.remove("active");
+      };
+
+      // Signup API
+      signupForm.addEventListener("submit", async function(e){
+        e.preventDefault();
+        const fullName = document.getElementById("signupName").value;
+        const email = document.getElementById("signupEmail").value;
+        const password = document.getElementById("signupPass").value;
+        const confirm = document.getElementById("signupConfirm").value;
+
+        if(password !== confirm){
+          return alert("Passwords do not match!");
+        }
+
+        try {
+          const res = await fetch("http://localhost:5000/api/signup", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({fullName,email,password})
+          });
+
+          const data = await res.json();
+          alert(data.message);
+          if(data.success) loginBtn.click();
+        } catch(err){
+          console.error(err);
+          alert("Error connecting to server!");
+        }
+      });
+
+      // Login API
+      loginForm.addEventListener("submit", async function(e){
+        e.preventDefault();
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPass").value;
+
+        try {
+          const res = await fetch("http://localhost:5000/api/login", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({email,password})
+          });
+
+          const data = await res.json();
+          if(!data.success) return alert(data.message);
+
+          // Show success alert
+          alert("Login successful!");
+
+          // Redirect after alert
+          window.location.href = "http://127.0.0.1:5000/test";
+
+        } catch(err){
+          console.error(err);
+          alert("Error connecting to server!");
+        }
+      });
+
+    });
+  </script>
+
+</body>
+</html>
