@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solar Analytics Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+    background: #0b1c2c;
+    font-family: 'Poppins', sans-serif;
+    color: #e6eef8;
+}
+.glass {
+    background: rgba(255,255,255,0.05);
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+</style>
+</head>
+
+<body class="p-6">
+
+<h1 class="text-3xl font-bold text-center mb-2">📊 Solar Analytics Dashboard</h1>
+<!-- Selected city -->
+<h2 id="selectedCity" class="text-xl font-semibold text-white text-center mb-6"></h2>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <div class="glass">
+        <h2 class="text-lg font-semibold mb-2">Irradiance Over Months (kWh/m²/day)</h2>
+        <div class="chart-container">
+            <canvas id="irrChart"></canvas>
+        </div>
+    </div>
+
+    <div class="glass">
+        <h2 class="text-lg font-semibold mb-2">Slope (Degrees)</h2>
+        <div class="chart-container">
+            <canvas id="slopeChart"></canvas>
+        </div>
+    </div>
+
+    <div class="glass">
+        <h2 class="text-lg font-semibold mb-2">Elevation (m)</h2>
+        <div class="chart-container">
+            <canvas id="elevChart"></canvas>
+        </div>
+    </div>
+
+    <div class="glass">
+        <h2 class="text-lg font-semibold mb-2">AI Land Score</h2>
+        <div class="chart-container">
+            <canvas id="landChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<script>
+let irrChart, slopeChart, elevChart, landChart;
+
+// Generate 12 months data from single irradiance value
+function generateMonthlyIrradiance(base){
+    let arr = [];
+    for(let i=0;i<12;i++){
+        arr.push(Math.max(3.5, Math.min(7.5, base + Math.random()*1.2 - 0.6)));
+    }
+    return arr;
+}
+
+// Get city from URL query parameter (default to Delhi)
+const urlParams = new URLSearchParams(window.location.search);
+const city = urlParams.get("city") || "Delhi";
+
+// Show selected city in white under heading
+document.getElementById("selectedCity").textContent = `Selected city :${city}`;
+
+// Load charts with real-time data
+async function loadCharts(city){
+    try {
+        const res = await fetch(`/charts-data?city=${encodeURIComponent(city)}`);
+        const data = await res.json();
+
+        const monthlyIrr = generateMonthlyIrradiance(data.irradiance || 5);
+
+        const options = {
+            responsive: true,
+            plugins: { legend: { labels: { color: "#fff" } } },
+            scales: { x: { ticks: { color: "#fff" } }, y: { ticks: { color: "#fff" } } }
+        };
+
+        // Destroy previous charts if they exist
+        [irrChart, slopeChart, elevChart, landChart].forEach(c => { if(c) c.destroy(); });
+
+        // Irradiance Line Chart
+        irrChart = new Chart(document.getElementById("irrChart"), {
+            type: "line",
+            data: {
+                labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+                datasets: [{
+                    label: "kWh/m²/day",
+                    data: monthlyIrr,
+                    borderColor: "rgba(0, 168, 255, 0.8)",
+                    backgroundColor: "rgba(0, 168, 255, 0.3)",
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4
+                }]
+            },
+            options
+        });
+
+        // Slope Bar Chart
+        slopeChart = new Chart(document.getElementById("slopeChart"), {
+            type: "bar",
+            data: { labels:[""], datasets:[{label:"Degrees", data:[data.slope], backgroundColor:"rgba(255,206,86,0.7)"}] },
+            options: {
+                ...options,
+                scales: { x: { display: false }, y: { ticks: { color: "#fff" } } }
+            }
+        });
+
+        // Elevation Bar Chart
+        elevChart = new Chart(document.getElementById("elevChart"), {
+            type: "bar",
+            data: { labels:[""], datasets:[{label:"m", data:[data.elevation], backgroundColor:"rgba(75,192,192,0.7)"}] },
+            options: {
+                ...options,
+                scales: { x: { display: false }, y: { ticks: { color: "#fff" } } }
+            }
+        });
+
+        // AI Land Score Bar Chart
+        landChart = new Chart(document.getElementById("landChart"), {
+            type: "bar",
+            data: { labels:[""], datasets:[{label:"Score", data:[data.landai], backgroundColor:"rgba(255,99,132,0.7)"}] },
+            options: {
+                ...options,
+                scales: { x: { display: false }, y: { ticks: { color: "#fff" } } }
+            }
+        });
+
+    } catch(err){
+        console.error("Error fetching chart data:", err);
+        alert("Failed to load chart data. Check server.");
+    }
+}
+
+// Initial chart load
+loadCharts(city);
+</script>
+
+</body>
+</html>
